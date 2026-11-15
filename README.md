@@ -23,19 +23,22 @@ APP/H5 效果：手机外壳内独立滚动，选择、搜索、底部操作、T
 **1. 安装**（任选一个你使用的工具，把仓库放进对应目录）：
 
 ```bash
-git clone https://github.com/<你的用户名>/requirement-prototype.git
-
 # Claude Code
-git clone https://github.com/<你的用户名>/requirement-prototype.git ~/.claude/skills/requirement-prototype
+git clone https://github.com/yingyingzhou0308-dot/requirement-prototype.git ~/.claude/skills/requirement-prototype
 
 # Codex
-git clone https://github.com/<你的用户名>/requirement-prototype.git ~/.codex/skills/requirement-prototype
+git clone https://github.com/yingyingzhou0308-dot/requirement-prototype.git ~/.codex/skills/requirement-prototype
 
 # WorkBuddy
-git clone https://github.com/<你的用户名>/requirement-prototype.git ~/.workbuddy/skills/requirement-prototype
+git clone https://github.com/yingyingzhou0308-dot/requirement-prototype.git ~/.workbuddy/skills/requirement-prototype
+
+# 其他支持 Agent Skills 的工具：克隆到它的 skills 目录即可
+git clone https://github.com/yingyingzhou0308-dot/requirement-prototype.git <你的skills目录>/requirement-prototype
 ```
 
 也可以放到项目目录让团队共用：`<项目>/.claude/skills/` 或 `<项目>/.workbuddy/skills/`。
+
+想先看效果、不想装？直接下载仓库，双击 `templates/prototype-template.html` 或 `templates/app-prototype-template.html` 就能看到成品长什么样。
 
 **2. 使用**：新开一个会话，用自然语言描述需求即可自动触发，例如：
 
