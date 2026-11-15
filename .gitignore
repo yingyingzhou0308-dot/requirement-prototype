@@ -1,0 +1,13 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+
+# 本地生成产物不要提交
+*.html
+!templates/*.html
+
+# 本地备份
+*.bak

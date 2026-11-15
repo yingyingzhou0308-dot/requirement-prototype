@@ -1,0 +1,572 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PUDO 网点服务商配置 · 需求原型模板</title>
+  <style>
+    /* 基础变量：保持模板离线可用，也方便按项目品牌替换。 */
+    :root {
+      --primary: #2563eb;
+      --primary-soft: #eff6ff;
+      --ink: #172033;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+      --surface: #ffffff;
+      --page: #f5f7fb;
+      --success: #15803d;
+      --success-soft: #ecfdf3;
+      --warning: #b45309;
+      --warning-soft: #fff7ed;
+      --danger: #b91c1c;
+      --danger-soft: #fef2f2;
+      --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      overflow: hidden;
+      color: var(--ink);
+      background: var(--page);
+      font: 14px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+    button:disabled { cursor: not-allowed; opacity: 0.45; }
+
+    .app-shell {
+      display: grid;
+      grid-template-columns: minmax(0, 65fr) minmax(320px, 35fr);
+      height: 100vh;
+      min-width: 920px;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .prototype-pane,
+    .requirements-pane {
+      min-width: 0;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .prototype-pane {
+      display: flex;
+      flex-direction: column;
+      background: var(--page);
+    }
+
+    .requirements-pane {
+      display: flex;
+      flex-direction: column;
+      padding: 22px 24px;
+      background: #fbfcff;
+      border-left: 1px solid var(--line);
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      display: flex;
+      flex: 0 0 auto;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      padding: 0 24px;
+      color: #fff;
+      background: #14213d;
+      box-shadow: 0 2px 10px rgba(15, 23, 42, 0.12);
+    }
+
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: 0.02em; }
+    .brand-mark { display: grid; width: 30px; height: 30px; place-items: center; border-radius: 9px; color: #14213d; background: #dbeafe; font-size: 12px; }
+    .topbar-meta { display: flex; align-items: center; gap: 16px; color: #cbd5e1; font-size: 12px; }
+    .avatar { display: grid; width: 30px; height: 30px; place-items: center; border-radius: 50%; color: #1d4ed8; background: #dbeafe; font-weight: 700; }
+
+    .workspace { display: flex; flex: 1 1 auto; align-items: stretch; min-height: 0; overflow: hidden; }
+
+    .sidebar {
+      flex: 0 0 178px;
+      min-height: 0;
+      overflow-y: auto;
+      padding: 20px 12px;
+      color: #475569;
+      background: var(--surface);
+      border-right: 1px solid var(--line);
+    }
+
+    .sidebar-label { padding: 0 12px 10px; color: #94a3b8; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; }
+    .nav-button {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      gap: 9px;
+      margin: 4px 0;
+      padding: 10px 12px;
+      color: inherit;
+      text-align: left;
+      background: transparent;
+      border: 0;
+      border-radius: 8px;
+    }
+    .nav-button:hover { color: var(--primary); background: var(--primary-soft); }
+    .nav-button.active { color: var(--primary); background: var(--primary-soft); font-weight: 700; }
+    .nav-icon { width: 18px; color: currentColor; text-align: center; font-size: 15px; }
+
+    .content-area { flex: 1; min-width: 0; min-height: 0; overflow: auto; padding: 26px 28px 44px; }
+    .page-view { max-width: 100%; }
+    .is-hidden { display: none !important; }
+    .breadcrumb { margin-bottom: 10px; color: var(--muted); font-size: 12px; }
+    .page-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; margin-bottom: 20px; }
+    .page-header h1 { margin: 0 0 4px; font-size: 23px; letter-spacing: -0.02em; }
+    .page-header p { margin: 0; color: var(--muted); }
+    .header-actions, .form-actions { display: flex; align-items: center; gap: 10px; }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 36px;
+      gap: 6px;
+      padding: 0 14px;
+      color: #334155;
+      background: var(--surface);
+      border: 1px solid #d7dce5;
+      border-radius: 7px;
+      transition: 0.16s ease;
+    }
+    .button:hover { border-color: #93c5fd; color: var(--primary); background: #f8fbff; }
+    .button.primary { color: #fff; background: var(--primary); border-color: var(--primary); box-shadow: 0 4px 10px rgba(37, 99, 235, 0.22); }
+    .button.primary:hover { background: #1d4ed8; }
+    .button.text { min-height: 28px; padding: 0 7px; color: var(--primary); background: transparent; border-color: transparent; box-shadow: none; }
+    .button.danger-text { color: var(--danger); }
+    .button.success-text { color: var(--success); }
+
+    .card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 2px 6px rgba(15, 23, 42, 0.025); }
+    .filter-card { padding: 18px 18px 4px; margin-bottom: 18px; }
+    .filter-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) auto; gap: 14px; align-items: end; }
+    .field { min-width: 0; }
+    .field label { display: block; margin-bottom: 6px; color: #475569; font-size: 13px; font-weight: 600; }
+    .required::before { margin-right: 3px; color: var(--danger); content: "*"; }
+    .control { width: 100%; min-height: 36px; padding: 7px 10px; color: var(--ink); background: #fff; border: 1px solid #d7dce5; border-radius: 6px; outline: none; }
+    .control:focus { border-color: #60a5fa; box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.18); }
+    textarea.control { min-height: 88px; resize: vertical; }
+    .filter-actions { display: flex; gap: 8px; padding-bottom: 0; }
+
+    .table-card { overflow: hidden; }
+    .table-toolbar { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid var(--line); }
+    .table-toolbar strong { font-size: 14px; }
+    .table-toolbar span { color: var(--muted); font-size: 12px; }
+    .table-wrap { overflow: auto; }
+    table { width: 100%; min-width: 650px; border-collapse: collapse; }
+    th, td { padding: 13px 16px; text-align: left; vertical-align: top; border-bottom: 1px solid #eef0f4; }
+    th { color: #64748b; background: #fafbfc; font-size: 12px; font-weight: 700; white-space: nowrap; }
+    td { color: #334155; font-size: 13px; }
+    tbody tr:hover { background: #fbfdff; }
+    tbody tr:last-child td { border-bottom: 0; }
+    .network-list { display: flex; flex-wrap: wrap; gap: 5px; min-width: 160px; }
+    .network-tag { display: inline-block; padding: 2px 7px; color: #475569; background: #f1f5f9; border-radius: 4px; font-size: 12px; white-space: normal; }
+    .status { display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+    .status::before { width: 6px; height: 6px; border-radius: 50%; background: currentColor; content: ""; }
+    .status.enabled { color: var(--success); background: var(--success-soft); }
+    .status.disabled { color: var(--muted); background: #f1f5f9; }
+    .action-list { display: flex; flex-wrap: wrap; gap: 1px; min-width: 130px; }
+    .empty-state { padding: 42px 18px; color: var(--muted); text-align: center; }
+    .empty-state strong { display: block; margin-bottom: 5px; color: #475569; }
+
+    .pagination { display: flex; align-items: center; justify-content: flex-end; gap: 8px; padding: 13px 18px; border-top: 1px solid var(--line); }
+    .page-info { margin-right: auto; color: var(--muted); font-size: 12px; }
+    .page-number { min-width: 28px; min-height: 28px; padding: 0 8px; color: #475569; background: #fff; border: 1px solid #d7dce5; border-radius: 6px; }
+    .page-number.current { color: #fff; background: var(--primary); border-color: var(--primary); }
+
+    .form-card { max-width: 780px; padding: 22px; }
+    .form-section { padding: 0 0 22px; margin-bottom: 22px; border-bottom: 1px solid #eef0f4; }
+    .form-section:last-of-type { margin-bottom: 0; border-bottom: 0; }
+    .form-section h2 { margin: 0 0 16px; font-size: 15px; }
+    .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+    .form-grid .full { grid-column: 1 / -1; }
+    .hint { margin: 6px 0 0; color: var(--muted); font-size: 12px; }
+    .radio-row { display: flex; gap: 20px; padding: 8px 0; }
+    .radio-row label, .network-option { display: flex; align-items: center; gap: 7px; color: #475569; font-weight: 400; }
+    .network-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; padding: 11px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 7px; }
+    .network-option { padding: 5px 7px; border-radius: 5px; }
+    .network-option:hover { background: #eef6ff; }
+    .form-error { display: none; padding: 10px 12px; margin-bottom: 17px; color: var(--danger); background: var(--danger-soft); border: 1px solid #fecaca; border-radius: 7px; }
+    .form-error.visible { display: block; }
+    .form-actions { justify-content: flex-end; padding-top: 20px; }
+
+    .requirements-title { display: flex; flex: 0 0 auto; align-items: flex-start; justify-content: space-between; gap: 16px; padding-bottom: 17px; margin-bottom: 18px; border-bottom: 1px solid var(--line); }
+    .requirements-content { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding-bottom: 24px; }
+    .eyebrow { margin: 0 0 4px; color: var(--primary); font-size: 11px; font-weight: 800; letter-spacing: 0.08em; }
+    .requirements-title h2 { margin: 0; font-size: 20px; }
+    .requirements-title p { margin: 5px 0 0; color: var(--muted); font-size: 12px; }
+    .sync-badge { flex: 0 0 auto; padding: 4px 8px; color: var(--success); background: var(--success-soft); border-radius: 5px; font-size: 11px; white-space: nowrap; }
+    .spec-block { padding: 13px 0; border-bottom: 1px solid #edf0f5; }
+    .spec-block:last-child { border-bottom: 0; }
+    .spec-block h3 { margin: 0 0 7px; color: #334155; font-size: 13px; }
+    .spec-block p { margin: 0; color: #64748b; font-size: 12px; }
+    .spec-block ul { padding-left: 18px; margin: 0; color: #64748b; font-size: 12px; }
+    .spec-block li { margin: 4px 0; }
+    .spec-block strong { color: #475569; }
+
+    .modal-backdrop { position: fixed; inset: 0; z-index: 20; display: grid; place-items: center; padding: 24px; background: rgba(15, 23, 42, 0.45); }
+    .modal { width: min(520px, 100%); max-height: min(680px, 90vh); overflow: auto; background: #fff; border-radius: 12px; box-shadow: var(--shadow); }
+    .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 20px; border-bottom: 1px solid var(--line); }
+    .modal-header h2 { margin: 0; font-size: 16px; }
+    .modal-close { width: 30px; height: 30px; color: #64748b; background: transparent; border: 0; border-radius: 5px; font-size: 20px; }
+    .modal-close:hover { background: #f1f5f9; }
+    .modal-body { padding: 20px; }
+    .detail-grid { display: grid; grid-template-columns: 110px 1fr; gap: 12px 16px; }
+    .detail-label { color: var(--muted); }
+    .detail-value { color: #334155; font-weight: 600; }
+
+    .toast-region { position: fixed; right: 22px; bottom: 22px; z-index: 30; display: grid; gap: 9px; width: min(360px, calc(100vw - 44px)); }
+    .toast { padding: 12px 14px; color: #334155; background: #fff; border-left: 4px solid var(--primary); border-radius: 7px; box-shadow: var(--shadow); font-size: 13px; }
+    .toast.success { border-left-color: var(--success); }
+    .toast.error { border-left-color: var(--danger); }
+
+    @media (max-width: 1100px) {
+      .app-shell { grid-template-columns: minmax(0, 62fr) minmax(300px, 38fr); }
+      .content-area { padding-right: 20px; padding-left: 20px; }
+      .filter-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .filter-actions { grid-column: 1 / -1; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <!-- 左侧：可交互后台原型区域。实际项目可从这里替换页面和业务数据。 -->
+    <section class="prototype-pane" id="prototype-pane" aria-label="交互原型区域">
+      <header class="topbar">
+        <div class="brand"><span class="brand-mark">RP</span><span>运营配置中心</span></div>
+        <div class="topbar-meta"><span>需求原型模板</span><span class="avatar">林</span></div>
+      </header>
+
+      <div class="workspace">
+        <aside class="sidebar" aria-label="侧边导航">
+          <div class="sidebar-label">配置管理</div>
+          <button class="nav-button active" type="button" data-page="list"><span class="nav-icon">▦</span>服务商配置</button>
+          <button class="nav-button" type="button" data-page="add"><span class="nav-icon">＋</span>新增配置</button>
+          <div class="sidebar-label" style="margin-top: 24px;">模板说明</div>
+          <div style="padding: 0 12px; color: #94a3b8; font-size: 12px;">当前示例：PUDO 网点服务商</div>
+        </aside>
+
+        <main class="content-area">
+          <!-- 列表页面 -->
+          <section class="page-view" id="list-page" data-page-view="list">
+            <div class="breadcrumb">配置管理 / 服务商配置</div>
+            <div class="page-header">
+              <div><h1>服务商配置</h1><p>维护 PUDO 网点与服务商的关联关系</p></div>
+              <div class="header-actions"><button class="button primary" id="add-button" type="button">＋ 新增配置</button></div>
+            </div>
+
+            <form class="card filter-card" id="filter-form">
+              <div class="filter-grid">
+                <div class="field"><label for="filter-network">网点</label><select class="control" id="filter-network"><option value="">全部网点</option></select></div>
+                <div class="field"><label for="filter-provider">服务商</label><select class="control" id="filter-provider"><option value="">全部服务商</option><option>星桥快递</option><option>蓝鲸物流</option><option>飞燕同城</option></select></div>
+                <div class="field"><label for="filter-status">配置状态</label><select class="control" id="filter-status"><option value="">全部状态</option><option value="enabled">启用</option><option value="disabled">停用</option></select></div>
+                <div class="filter-actions"><button class="button primary" type="submit">查询</button><button class="button" id="reset-filter" type="button">重置</button></div>
+              </div>
+            </form>
+
+            <section class="card table-card" aria-label="配置列表">
+              <div class="table-toolbar"><strong>配置列表</strong><span id="result-count">共 0 条记录</span></div>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>网点</th><th>服务商</th><th>配置状态</th><th>创建人</th><th>创建时间</th><th>操作</th></tr></thead>
+                  <tbody id="config-table-body"></tbody>
+                </table>
+              </div>
+              <div class="pagination" id="pagination"></div>
+            </section>
+          </section>
+
+          <!-- 新增/编辑页面：同一个表单通过 editingId 支持基础编辑回显。 -->
+          <section class="page-view is-hidden" id="add-page" data-page-view="add">
+            <div class="breadcrumb">配置管理 / 服务商配置 / <span id="form-breadcrumb">新增配置</span></div>
+            <div class="page-header">
+              <div><h1 id="form-title">新增配置</h1><p>创建服务商与多个 PUDO 网点的关联配置</p></div>
+              <div class="header-actions"><button class="button" id="back-button" type="button">返回列表</button></div>
+            </div>
+
+            <form class="card form-card" id="config-form" novalidate>
+              <div class="form-error" id="form-error" role="alert"></div>
+              <div class="form-section">
+                <h2>基础信息</h2>
+                <div class="form-grid">
+                  <div class="field"><label class="required" for="provider">服务商</label><select class="control" id="provider"><option value="">请选择服务商</option><option>星桥快递</option><option>蓝鲸物流</option><option>飞燕同城</option></select><p class="hint">单条配置只能选择一个服务商。</p></div>
+                  <div class="field"><label class="required">网点</label><div class="network-options" id="network-options"></div><p class="hint">可多选；保存后会在列表同一条记录内合并展示。</p></div>
+                  <div class="field"><label class="required">配置状态</label><div class="radio-row"><label><input type="radio" name="status" value="enabled" checked> 启用</label><label><input type="radio" name="status" value="disabled"> 停用</label></div></div>
+                  <div class="field full"><label for="remark">备注</label><textarea class="control" id="remark" maxlength="200" placeholder="请输入配置备注（非必填）"></textarea></div>
+                </div>
+              </div>
+              <div class="form-actions"><button class="button" id="cancel-button" type="button">取消</button><button class="button primary" type="submit">保存</button></div>
+            </form>
+          </section>
+        </main>
+      </div>
+    </section>
+
+    <!-- 右侧：与当前页面同步的需求说明区域。 -->
+    <aside class="requirements-pane" id="requirements-pane" aria-label="页面需求说明">
+      <div class="requirements-title"><div><p class="eyebrow">PAGE SPECIFICATION</p><h2 id="requirements-heading">配置列表</h2><p id="requirements-subtitle">当前页面的结构化需求说明</p></div><span class="sync-badge">说明已同步</span></div>
+      <div class="requirements-content" id="requirement-content"></div>
+    </aside>
+  </div>
+
+  <!-- 查看详情使用轻量弹窗，便于模板扩展为抽屉或详情页。 -->
+  <div class="modal-backdrop is-hidden" id="view-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal">
+      <div class="modal-header"><h2 id="modal-title">配置详情</h2><button class="modal-close" id="modal-close" type="button" aria-label="关闭">×</button></div>
+      <div class="modal-body" id="modal-body"></div>
+    </div>
+  </div>
+  <div class="toast-region" id="toast-region" aria-live="polite"></div>
+
+  <script>
+    /* 模拟数据：替换为真实需求时，只需同步更新字段、规则说明和交互逻辑。 */
+    const availableNetworks = [
+      { id: "pudo-001", code: "PUDO-001", name: "上海虹桥网点" },
+      { id: "pudo-002", code: "PUDO-002", name: "上海浦东网点" },
+      { id: "pudo-003", code: "PUDO-003", name: "杭州西湖网点" },
+      { id: "pudo-004", code: "PUDO-004", name: "苏州园区网点" },
+      { id: "pudo-005", code: "PUDO-005", name: "宁波东部网点" },
+      { id: "pudo-006", code: "PUDO-006", name: "南京新街口网点" }
+    ];
+
+    let configs = [
+      { id: 1, provider: "星桥快递", networks: [availableNetworks[0], availableNetworks[1]], status: "enabled", creator: "林悦", createdAt: "2026-07-16 10:28", remark: "华东核心网点" },
+      { id: 2, provider: "蓝鲸物流", networks: [availableNetworks[2]], status: "enabled", creator: "周宁", createdAt: "2026-07-15 15:42", remark: "" },
+      { id: 3, provider: "飞燕同城", networks: [availableNetworks[3], availableNetworks[4]], status: "disabled", creator: "林悦", createdAt: "2026-07-12 09:16", remark: "服务商切换中" },
+      { id: 4, provider: "星桥快递", networks: [availableNetworks[5]], status: "enabled", creator: "陈晨", createdAt: "2026-07-09 18:05", remark: "" },
+      { id: 5, provider: "蓝鲸物流", networks: [availableNetworks[0]], status: "disabled", creator: "周宁", createdAt: "2026-07-04 11:30", remark: "" },
+      { id: 6, provider: "飞燕同城", networks: [availableNetworks[1], availableNetworks[2]], status: "enabled", creator: "陈晨", createdAt: "2026-06-28 13:20", remark: "" }
+    ];
+
+    const state = { currentPage: "list", currentPageNumber: 1, pageSize: 5, editingId: null };
+
+    const requirements = {
+      list: {
+        title: "配置列表",
+        subtitle: "查询和维护已配置的服务商与 PUDO 网点关系",
+        content: `
+          <section class="spec-block"><h3>1. 页面目标</h3><p>让业务配置人员查询已有配置，并完成新增、编辑、启用、停用和查看。</p></section>
+          <section class="spec-block"><h3>2. 使用角色</h3><p>业务配置人员可进入和维护配置；只读角色仅查看列表和详情。当前模板用前端模拟权限。</p></section>
+          <section class="spec-block"><h3>3. 进入条件</h3><p>用户已登录后台且拥有服务商配置菜单权限。进入后默认展示全部配置。</p></section>
+          <section class="spec-block"><h3>4. 页面结构</h3><p>顶部栏、侧边栏、面包屑、页面标题、筛选区、配置列表和分页区。左侧可交互，右侧同步展示本说明。</p></section>
+          <section class="spec-block"><h3>5. 查询条件</h3><ul><li>网点：按关联网点筛选一条配置记录。</li><li>服务商：单选服务商。</li><li>配置状态：全部、启用、停用。</li><li>查询执行筛选，重置恢复全部条件。</li></ul></section>
+          <section class="spec-block"><h3>6. 列表字段</h3><ul><li>网点：编码和名称使用“｜”分隔，多个网点在同一条记录中合并展示。</li><li>服务商、配置状态、创建人、创建时间、操作。</li></ul></section>
+          <section class="spec-block"><h3>7. 按钮及操作说明</h3><ul><li><strong>新增配置</strong>：有新增权限时显示；点击进入新增页；成功保存后返回列表；失败不清空表单。</li><li><strong>编辑</strong>：有编辑权限时显示；点击回显配置；保存成功刷新列表，失败保留输入。</li><li><strong>启用/停用</strong>：配置处于相反状态时显示；点击切换状态并提示结果；异常时保留原状态。</li><li><strong>查看</strong>：有查看权限时显示；点击打开详情弹窗；关闭后留在列表。</li></ul></section>
+          <section class="spec-block"><h3>8. 校验规则</h3><p>筛选条件可为空；服务商与网点的重复关系由新增和编辑保存前检查，列表不直接生成重复记录。</p></section>
+          <section class="spec-block"><h3>9. 状态规则</h3><p>配置状态为“启用”或“停用”。启用可停用，停用可启用，状态切换后列表即时刷新并显示提示。</p></section>
+          <section class="spec-block"><h3>10. 权限规则</h3><p>查询和查看需要查看权限；新增和编辑需要维护权限；启用和停用需要状态维护权限。无权限时应隐藏相应按钮。</p></section>
+          <section class="spec-block"><h3>11. 异常处理</h3><p>无筛选结果显示空状态；保存或状态切换失败显示原因并保留当前页面。真实项目需补充加载失败和接口超时处理。</p></section>
+          <section class="spec-block"><h3>12. 操作反馈</h3><p>查询刷新结果数量；重置恢复默认列表；新增或状态切换成功用提示条反馈；查看通过弹窗展示详情。</p></section>
+          <section class="spec-block"><h3>13. 验收标准</h3><ul><li>筛选和分页结果正确。</li><li>多个网点在同一条列表记录内展示。</li><li>所有操作按钮均产生明确结果。</li><li>字段、状态和右侧说明保持一致。</li></ul></section>
+        `
+      },
+      add: {
+        title: "新增配置",
+        subtitle: "创建一个服务商与多个 PUDO 网点的关联配置",
+        content: `
+          <section class="spec-block"><h3>1. 页面目标</h3><p>让业务配置人员录入服务商、多个网点、配置状态和备注，并创建一条配置记录。</p></section>
+          <section class="spec-block"><h3>2. 使用角色</h3><p>业务配置人员可新增；编辑角色可在同一表单回显并修改已有配置。当前模板用前端模拟权限。</p></section>
+          <section class="spec-block"><h3>3. 进入条件</h3><p>从配置列表点击“新增配置”进入；编辑已有记录时进入同一表单的编辑模式。</p></section>
+          <section class="spec-block"><h3>4. 页面结构</h3><p>面包屑、标题、返回列表按钮、基础信息表单、网点多选区、校验反馈和底部操作区。</p></section>
+          <section class="spec-block"><h3>5. 查询条件</h3><p>不适用。页面用于录入和保存配置，不提供列表筛选；服务商为单选，网点为多选。</p></section>
+          <section class="spec-block"><h3>6. 表单字段</h3><ul><li>服务商：单选，必填。</li><li>网点：多选，必填，至少选择一个。</li><li>配置状态：启用或停用，默认启用。</li><li>备注：非必填，最多 200 个字符。</li></ul></section>
+          <section class="spec-block"><h3>7. 按钮及操作说明</h3><ul><li><strong>返回列表</strong>：点击离开表单并返回列表；当前模板不清空已保存数据。</li><li><strong>取消</strong>：放弃本次输入并返回列表；未保存内容不写入列表。</li><li><strong>保存</strong>：服务商和网点通过校验后可点击；成功新增并返回列表；失败显示原因并保留已填写内容。</li></ul></section>
+          <section class="spec-block"><h3>8. 校验规则</h3><ul><li>服务商不能为空。</li><li>网点至少选择一个。</li><li>同一网点不能重复配置同一个服务商。</li><li>重复校验在保存前执行，冲突时不清空表单。</li></ul></section>
+          <section class="spec-block"><h3>9. 状态规则</h3><p>配置状态默认“启用”，允许在保存前选择“停用”；保存后可在列表通过状态操作切换。</p></section>
+          <section class="spec-block"><h3>10. 权限规则</h3><p>只有拥有配置维护权限的角色可以进入并保存；只读角色不可见新增和保存按钮。</p></section>
+          <section class="spec-block"><h3>11. 异常处理</h3><p>必填缺失时在表单顶部提示；重复配置时提示冲突的服务商和网点；失败时保留服务商、网点、状态和备注。</p></section>
+          <section class="spec-block"><h3>12. 操作反馈</h3><p>校验失败显示红色错误提示；保存成功提示“配置保存成功”并返回列表；取消不显示成功提示。</p></section>
+          <section class="spec-block"><h3>13. 验收标准</h3><ul><li>服务商和网点必填校验可用。</li><li>多选网点保存为同一条列表记录。</li><li>重复配置无法保存且输入不丢失。</li><li>保存成功返回列表并显示成功提示。</li><li>右侧说明与表单字段和按钮一致。</li></ul></section>
+        `
+      }
+    };
+
+    const $ = (selector) => document.querySelector(selector);
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>'"]/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" }[character]));
+    }
+
+    function showToast(message, type = "info") {
+      const toast = document.createElement("div");
+      toast.className = `toast ${type}`;
+      toast.textContent = message;
+      $("#toast-region").appendChild(toast);
+      window.setTimeout(() => toast.remove(), 3200);
+    }
+
+    function renderRequirements(page) {
+      const spec = requirements[page];
+      $("#requirements-heading").textContent = spec.title;
+      $("#requirements-subtitle").textContent = spec.subtitle;
+      $("#requirement-content").innerHTML = spec.content;
+    }
+
+    function switchPage(page) {
+      state.currentPage = page;
+      document.querySelectorAll("[data-page-view]").forEach((view) => view.classList.toggle("is-hidden", view.dataset.pageView !== page));
+      document.querySelectorAll(".nav-button").forEach((button) => button.classList.toggle("active", button.dataset.page === page));
+      renderRequirements(page);
+      if (page === "list") renderTable();
+    }
+
+    function statusLabel(status) { return status === "enabled" ? "启用" : "停用"; }
+
+    function renderNetworkFilter() {
+      $("#filter-network").innerHTML = '<option value="">全部网点</option>' + availableNetworks.map((network) => `<option value="${network.id}">${network.code}｜${network.name}</option>`).join("");
+    }
+
+    function renderTable() {
+      const networkFilter = $("#filter-network").value;
+      const providerFilter = $("#filter-provider").value;
+      const statusFilter = $("#filter-status").value;
+      const filtered = configs.filter((config) => {
+        const networkMatched = !networkFilter || config.networks.some((network) => network.id === networkFilter);
+        const providerMatched = !providerFilter || config.provider === providerFilter;
+        const statusMatched = !statusFilter || config.status === statusFilter;
+        return networkMatched && providerMatched && statusMatched;
+      });
+      const pageCount = Math.max(1, Math.ceil(filtered.length / state.pageSize));
+      state.currentPageNumber = Math.min(state.currentPageNumber, pageCount);
+      const rows = filtered.slice((state.currentPageNumber - 1) * state.pageSize, state.currentPageNumber * state.pageSize);
+      $("#result-count").textContent = `共 ${filtered.length} 条记录`;
+      $("#config-table-body").innerHTML = rows.length ? rows.map((config) => `
+        <tr>
+          <td><div class="network-list">${config.networks.map((network) => `<span class="network-tag">${escapeHtml(network.code)}｜${escapeHtml(network.name)}</span>`).join("")}</div></td>
+          <td>${escapeHtml(config.provider)}</td>
+          <td><span class="status ${config.status}">${statusLabel(config.status)}</span></td>
+          <td>${escapeHtml(config.creator)}</td>
+          <td>${escapeHtml(config.createdAt)}</td>
+          <td><div class="action-list"><button class="button text" type="button" data-action="edit" data-id="${config.id}">编辑</button><button class="button text ${config.status === "enabled" ? "danger-text" : "success-text"}" type="button" data-action="toggle" data-id="${config.id}">${config.status === "enabled" ? "停用" : "启用"}</button><button class="button text" type="button" data-action="view" data-id="${config.id}">查看</button></div></td>
+        </tr>
+      `).join("") : '<tr><td colspan="6"><div class="empty-state"><strong>暂无匹配的配置</strong><span>请调整筛选条件，或点击“新增配置”创建第一条配置。</span></div></td></tr>';
+      renderPagination(filtered.length, pageCount);
+    }
+
+    function renderPagination(total, pageCount) {
+      const pages = Array.from({ length: pageCount }, (_, index) => index + 1);
+      $("#pagination").innerHTML = `<span class="page-info">第 ${state.currentPageNumber} / ${pageCount} 页</span><button class="page-number" type="button" data-page-number="${state.currentPageNumber - 1}" ${state.currentPageNumber === 1 ? "disabled" : ""}>‹</button>${pages.map((page) => `<button class="page-number ${page === state.currentPageNumber ? "current" : ""}" type="button" data-page-number="${page}">${page}</button>`).join("")}<button class="page-number" type="button" data-page-number="${state.currentPageNumber + 1}" ${state.currentPageNumber === pageCount ? "disabled" : ""}>›</button>`;
+      $("#pagination").dataset.total = total;
+    }
+
+    function renderNetworkOptions(selectedIds = []) {
+      $("#network-options").innerHTML = availableNetworks.map((network) => `<label class="network-option"><input type="checkbox" name="networkIds" value="${network.id}" ${selectedIds.includes(network.id) ? "checked" : ""}><span>${network.code}｜${network.name}</span></label>`).join("");
+    }
+
+    function openForm(record = null) {
+      state.editingId = record ? record.id : null;
+      $("#form-title").textContent = record ? "编辑配置" : "新增配置";
+      $("#form-breadcrumb").textContent = record ? "编辑配置" : "新增配置";
+      $("#provider").value = record ? record.provider : "";
+      $("#remark").value = record ? record.remark : "";
+      document.querySelectorAll('input[name="status"]').forEach((input) => { input.checked = input.value === (record ? record.status : "enabled"); });
+      renderNetworkOptions(record ? record.networks.map((network) => network.id) : []);
+      clearFormError();
+      switchPage("add");
+    }
+
+    function clearFormError() { $("#form-error").textContent = ""; $("#form-error").classList.remove("visible"); }
+
+    function setFormError(message) { $("#form-error").textContent = message; $("#form-error").classList.add("visible"); }
+
+    function openView(id) {
+      const record = configs.find((config) => config.id === id);
+      if (!record) return;
+      $("#modal-body").innerHTML = `<div class="detail-grid"><div class="detail-label">服务商</div><div class="detail-value">${escapeHtml(record.provider)}</div><div class="detail-label">网点</div><div class="detail-value">${record.networks.map((network) => `${escapeHtml(network.code)}｜${escapeHtml(network.name)}`).join("<br>")}</div><div class="detail-label">配置状态</div><div class="detail-value"><span class="status ${record.status}">${statusLabel(record.status)}</span></div><div class="detail-label">创建人</div><div class="detail-value">${escapeHtml(record.creator)}</div><div class="detail-label">创建时间</div><div class="detail-value">${escapeHtml(record.createdAt)}</div><div class="detail-label">备注</div><div class="detail-value">${escapeHtml(record.remark || "—")}</div></div>`;
+      $("#view-modal").classList.remove("is-hidden");
+    }
+
+    function closeView() { $("#view-modal").classList.add("is-hidden"); }
+
+    function toggleStatus(id) {
+      const record = configs.find((config) => config.id === id);
+      if (!record) return;
+      record.status = record.status === "enabled" ? "disabled" : "enabled";
+      renderTable();
+      showToast(`已${record.status === "enabled" ? "启用" : "停用"}“${record.provider}”配置`, "success");
+    }
+
+    function nowText() {
+      const now = new Date();
+      const pad = (value) => String(value).padStart(2, "0");
+      return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+    }
+
+    function saveConfig(event) {
+      event.preventDefault();
+      clearFormError();
+      const provider = $("#provider").value;
+      const selectedIds = Array.from(document.querySelectorAll('input[name="networkIds"]:checked')).map((input) => input.value);
+      const status = document.querySelector('input[name="status"]:checked').value;
+      const remark = $("#remark").value.trim();
+
+      if (!provider) { setFormError("保存失败：请选择服务商。"); showToast("请先选择服务商", "error"); return; }
+      if (!selectedIds.length) { setFormError("保存失败：请至少选择一个网点。"); showToast("请至少选择一个网点", "error"); return; }
+
+      const duplicate = configs.find((config) => config.id !== state.editingId && config.provider === provider && config.networks.some((network) => selectedIds.includes(network.id)));
+      if (duplicate) {
+        const conflicts = duplicate.networks.filter((network) => selectedIds.includes(network.id)).map((network) => network.name).join("、");
+        setFormError(`保存失败：${provider} 已配置网点“${conflicts}”，不能重复配置。`);
+        showToast("存在重复配置，已保留当前填写内容", "error");
+        return;
+      }
+
+      const selectedNetworks = availableNetworks.filter((network) => selectedIds.includes(network.id));
+      if (state.editingId) {
+        const record = configs.find((config) => config.id === state.editingId);
+        Object.assign(record, { provider, networks: selectedNetworks, status, remark });
+        showToast("配置保存成功，已更新列表", "success");
+      } else {
+        configs.unshift({ id: Date.now(), provider, networks: selectedNetworks, status, creator: "林悦", createdAt: nowText(), remark });
+        showToast("配置保存成功，已返回列表", "success");
+      }
+      state.currentPageNumber = 1;
+      switchPage("list");
+    }
+
+    document.addEventListener("click", (event) => {
+      const navButton = event.target.closest(".nav-button");
+      if (navButton) {
+        if (navButton.dataset.page === "add") openForm();
+        else switchPage(navButton.dataset.page);
+        return;
+      }
+      const actionButton = event.target.closest("[data-action]");
+      if (actionButton) {
+        const id = Number(actionButton.dataset.id);
+        if (actionButton.dataset.action === "edit") openForm(configs.find((config) => config.id === id));
+        if (actionButton.dataset.action === "toggle") toggleStatus(id);
+        if (actionButton.dataset.action === "view") openView(id);
+        return;
+      }
+      const pageButton = event.target.closest("[data-page-number]");
+      if (pageButton && !pageButton.disabled) { state.currentPageNumber = Number(pageButton.dataset.pageNumber); renderTable(); }
+    });
+
+    $("#add-button").addEventListener("click", () => openForm());
+    $("#back-button").addEventListener("click", () => switchPage("list"));
+    $("#cancel-button").addEventListener("click", () => switchPage("list"));
+    $("#config-form").addEventListener("submit", saveConfig);
+    $("#filter-form").addEventListener("submit", (event) => { event.preventDefault(); state.currentPageNumber = 1; renderTable(); });
+    $("#reset-filter").addEventListener("click", () => { $("#filter-form").reset(); state.currentPageNumber = 1; renderTable(); });
+    $("#modal-close").addEventListener("click", closeView);
+    $("#view-modal").addEventListener("click", (event) => { if (event.target.id === "view-modal") closeView(); });
+
+    renderNetworkFilter();
+    renderNetworkOptions();
+    renderRequirements("list");
+    renderTable();
+  </script>
+</body>
+</html>

@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>APP/H5 移动端需求原型模板</title>
+  <style>
+    :root {
+      --brand: #165DFF;
+      --brand-2: #2E7CF6;
+      --brand-soft: #E8F1FF;
+      --bg: #F5F6F8;
+      --page: #E9EDF3;
+      --card: #FFFFFF;
+      --ink: #1D2129;
+      --ink-2: #4E5969;
+      --ink-3: #86909C;
+      --line: #E5E6EB;
+      --line-2: #F2F3F5;
+      --danger: #F53F3F;
+      --danger-soft: #FFECE8;
+      --ok: #00B42A;
+      --ok-soft: #E8FFEA;
+      --warn: #FF7D00;
+      --warn-soft: #FFF3E8;
+      --shadow: 0 18px 42px rgba(20, 30, 60, .12);
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    html, body { width: 100%; height: 100%; min-height: 0; }
+    body {
+      min-width: 1280px;
+      height: 100vh;
+      min-height: 0;
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding: 24px;
+      color: var(--ink);
+      font-family: var(--font);
+      background: var(--page);
+      background-image: radial-gradient(circle at 1px 1px, rgba(22, 93, 255, .05) 1px, transparent 0);
+      background-size: 22px 22px;
+    }
+
+    button, input { font: inherit; }
+    button { border: 0; }
+
+    /* 桌面端评审工作区：始终保持左原型、右说明。 */
+    .workspace {
+      width: min(1480px, calc(100vw - 48px));
+      min-width: 1232px;
+      height: calc(100vh - 48px);
+      min-height: 0;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: minmax(0, 65fr) minmax(360px, 35fr);
+      gap: 20px;
+      overflow: hidden;
+    }
+
+    .prototype-pane,
+    .requirements-pane {
+      min-width: 0;
+      min-height: 0;
+      height: 100%;
+      overflow: hidden;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .prototype-pane {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      padding: 18px 24px;
+    }
+
+    .requirements-pane { display: flex; flex-direction: column; }
+
+    .prototype-stage {
+      position: relative;
+      display: block;
+      width: 470px;
+      height: 100%;
+      min-width: 0;
+      min-height: 0;
+      overflow: visible;
+    }
+
+    /* 手机设备外壳 */
+    .phone {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 398px;
+      height: 832px;
+      flex: 0 0 auto;
+      padding: 11px;
+      border: 2px solid #23262E;
+      border-radius: 46px;
+      background: #050505;
+      box-shadow: 0 32px 70px rgba(20, 30, 60, .38), inset 0 0 0 1px #555;
+      transform: translate(-50%, -50%) scale(var(--phone-scale, 1));
+      transform-origin: center center;
+    }
+
+    .screen {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      border-radius: 36px;
+      background: var(--bg);
+    }
+
+    .statusbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex: 0 0 auto;
+      height: 34px;
+      padding: 0 24px 0 26px;
+      color: var(--ink);
+      background: #fff;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .statusbar .status-icons { display: flex; align-items: center; gap: 6px; }
+    .statusbar svg { width: 16px; height: 16px; }
+
+    .app {
+      position: relative;
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+      min-height: 0;
+      overflow: hidden;
+      background: var(--bg);
+    }
+
+    .m-header {
+      z-index: 5;
+      display: flex;
+      align-items: center;
+      flex: 0 0 auto;
+      height: 50px;
+      padding: 0 12px;
+      border-bottom: 1px solid var(--line-2);
+      background: #fff;
+    }
+
+    .m-back {
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      color: var(--ink);
+      background: transparent;
+      cursor: pointer;
+      font-size: 25px;
+      line-height: 1;
+    }
+
+    .m-back:hover { background: var(--line-2); }
+    .m-title { flex: 1; color: var(--ink); font-size: 16px; font-weight: 600; text-align: center; }
+    .m-brand { width: 46px; color: var(--brand-2); font-size: 13px; font-weight: 800; text-align: right; }
+
+    .m-fixed {
+      z-index: 2;
+      flex: 0 0 auto;
+      padding: 12px 12px 10px;
+      background: var(--bg);
+      box-shadow: 0 8px 12px -10px rgba(20, 30, 60, .22);
+    }
+
+    .m-list {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      padding: 4px 12px 116px;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+
+    .m-list::-webkit-scrollbar,
+    .spec-scroll::-webkit-scrollbar,
+    .result-scroll::-webkit-scrollbar { width: 0; height: 0; }
+
+    /* 通用业务对象摘要卡片 */
+    .object-card,
+    .point-card,
+    .method-card,
+    .notice,
+    .state-panel,
+    .success-card { border: 1px solid var(--line-2); background: var(--card); box-shadow: 0 1px 4px rgba(29, 33, 41, .06); }
+    .object-card { padding: 14px; border-radius: 12px; }
+    .object-top { display: flex; align-items: center; gap: 9px; margin-bottom: 12px; }
+    .object-icon { display: grid; place-items: center; width: 40px; height: 40px; flex: 0 0 auto; border-radius: 10px; color: var(--brand); background: var(--brand-soft); }
+    .object-info { min-width: 0; flex: 1; }
+    .object-info .title { overflow: hidden; color: var(--ink); font-size: 14px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+    .object-info .sub { margin-top: 3px; color: var(--ink-3); font-size: 12px; }
+    .object-tag { flex: 0 0 auto; padding: 3px 8px; border-radius: 20px; color: var(--brand); background: var(--brand-soft); font-size: 11px; font-weight: 600; }
+    .object-meta { display: flex; gap: 28px; padding-top: 12px; border-top: 1px dashed var(--line); }
+    .object-meta .label { color: var(--ink-3); font-size: 12px; }
+    .object-meta .value { margin-top: 3px; color: var(--ink); font-size: 13px; font-weight: 500; }
+
+    .section-title { margin: 18px 4px 8px; color: var(--ink-2); font-size: 13px; font-weight: 600; }
+    .method-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .method-card { position: relative; padding: 12px; border: 1.5px solid var(--line); border-radius: 12px; cursor: pointer; transition: .15s; }
+    .method-card .main { display: flex; align-items: center; gap: 6px; color: var(--ink); font-size: 14px; font-weight: 600; }
+    .method-card .desc { margin-top: 4px; color: var(--ink-3); font-size: 11px; line-height: 1.4; }
+    .method-card.active { border-color: var(--brand); background: #F2F7FF; }
+    .method-card.active .main { color: var(--brand); }
+    .method-card.active::after { content: "✓"; position: absolute; top: 0; right: 0; display: grid; place-items: center; width: 22px; height: 22px; border-radius: 0 10px 0 12px; color: #fff; background: var(--brand); font-size: 12px; }
+
+    .notice { display: flex; align-items: flex-start; gap: 8px; margin: 6px 0 2px; padding: 10px 12px; border-color: #CFE0FF; border-radius: 10px; color: var(--ink-2); background: var(--brand-soft); font-size: 12px; line-height: 1.55; }
+    .notice svg { flex: 0 0 auto; margin-top: 1px; color: var(--brand); }
+    .notice strong { color: var(--brand); }
+    .location-row { display: flex; align-items: center; gap: 6px; margin: 16px 4px 10px; color: var(--ink-2); font-size: 12px; }
+    .location-row .relocate { display: flex; align-items: center; gap: 3px; margin-left: auto; padding: 4px; border-radius: 5px; color: var(--brand); cursor: pointer; }
+    .location-row .relocate:hover { background: var(--brand-soft); }
+    .search-box { display: flex; align-items: center; gap: 8px; height: 40px; margin-bottom: 14px; padding: 0 12px; border-radius: 10px; background: #fff; box-shadow: 0 1px 4px rgba(29, 33, 41, .06); color: var(--ink-3); }
+    .search-box input { min-width: 0; flex: 1; border: 0; outline: 0; color: var(--ink); background: transparent; font-size: 14px; }
+    .list-heading { margin: 4px 4px 10px; color: var(--ink-2); font-size: 13px; font-weight: 600; }
+    .list-heading strong { color: var(--brand); }
+
+    .point-card { margin-bottom: 12px; padding: 12px 14px; border: 1.5px solid transparent; border-radius: 12px; cursor: pointer; transition: border-color .15s, transform .15s; }
+    .point-card:hover { transform: translateY(-1px); }
+    .point-card.active { border-color: var(--brand); }
+    .point-name { display: flex; align-items: center; gap: 6px; color: var(--ink); font-size: 15px; font-weight: 600; }
+    .point-check { width: 20px; height: 20px; flex: 0 0 auto; margin-left: auto; border: 1.5px solid var(--line); border-radius: 50%; }
+    .point-card.active .point-check { position: relative; border-color: var(--brand); background: var(--brand); }
+    .point-card.active .point-check::after { content: "✓"; position: absolute; inset: 0; display: grid; place-items: center; color: #fff; font-size: 12px; }
+    .point-line { display: flex; align-items: flex-start; gap: 5px; margin-top: 6px; color: var(--ink-2); font-size: 12px; line-height: 1.45; }
+    .point-line svg { flex: 0 0 auto; margin-top: 1px; color: var(--ink-3); }
+    .point-foot { display: flex; align-items: center; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line-2); }
+    .point-distance { color: var(--ink-3); font-size: 12px; }
+    .point-distance strong { color: var(--ink); }
+    .point-action { display: flex; align-items: center; gap: 4px; margin-left: auto; padding: 4px 8px; border-radius: 6px; color: var(--brand); background: var(--brand-soft); font-size: 12px; cursor: pointer; }
+
+    .state-panel { margin: 18px 0 12px; padding: 22px 16px; border-radius: 12px; text-align: center; }
+    .state-icon { display: grid; place-items: center; width: 52px; height: 52px; margin: 0 auto 10px; border-radius: 50%; color: var(--brand); background: var(--brand-soft); }
+    .state-icon.warn { color: var(--warn); background: var(--warn-soft); }
+    .state-icon.danger { color: var(--danger); background: var(--danger-soft); }
+    .state-panel h3 { color: var(--ink); font-size: 15px; }
+    .state-panel p { margin-top: 7px; color: var(--ink-3); font-size: 12px; line-height: 1.55; }
+    .state-panel button { margin-top: 12px; padding: 8px 14px; border: 1px solid var(--line); border-radius: 8px; color: var(--brand); background: #fff; cursor: pointer; font-size: 13px; }
+    .state-panel button:hover { border-color: var(--brand); background: var(--brand-soft); }
+    .home-card { margin-top: 6px; padding: 22px 16px; border-radius: 12px; background: #fff; box-shadow: 0 1px 4px rgba(29, 33, 41, .06); text-align: center; }
+    .home-card .home-icon { display: grid; place-items: center; width: 56px; height: 56px; margin: 0 auto 12px; border-radius: 50%; color: var(--brand); background: var(--brand-soft); }
+    .home-card h3 { color: var(--ink); font-size: 15px; }
+    .home-card p { margin-top: 8px; color: var(--ink-3); font-size: 12px; line-height: 1.6; }
+
+    .m-footer { position: absolute; right: 0; bottom: 0; left: 0; z-index: 8; display: flex; align-items: center; gap: 12px; padding: 10px 16px calc(16px + env(safe-area-inset-bottom)); border-top: 1px solid var(--line-2); background: rgba(255, 255, 255, .98); box-shadow: 0 -2px 12px rgba(29, 33, 41, .06); }
+    .picked { min-width: 0; flex: 1; color: var(--ink-3); font-size: 12px; line-height: 1.35; }
+    .picked strong { display: block; color: var(--ink); font-size: 13px; }
+    .btn-cta { flex: 0 0 auto; height: 44px; padding: 0 25px; border-radius: 22px; color: #fff; background: var(--brand); cursor: pointer; font-size: 15px; font-weight: 600; }
+    .btn-cta:disabled { color: var(--ink-3); background: var(--line); cursor: not-allowed; }
+    .btn-cta.loading { position: relative; padding-left: 42px; pointer-events: none; }
+    .btn-cta.loading::before { content: ""; position: absolute; left: 20px; width: 14px; height: 14px; border: 2px solid rgba(255, 255, 255, .45); border-top-color: #fff; border-radius: 50%; animation: spin .8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* 成功结果页：限制在手机内部。 */
+    .m-success { position: absolute; inset: 0; z-index: 30; display: none; flex-direction: column; overflow: hidden; background: var(--bg); }
+    .m-success.show { display: flex; }
+    .success-hero { flex: 0 0 auto; padding: 28px 20px 24px; color: #fff; background: linear-gradient(160deg, #2E7CF6, #165DFF); text-align: center; }
+    .success-hero .ok { display: grid; place-items: center; width: 54px; height: 54px; margin: 0 auto 12px; border-radius: 50%; background: rgba(255, 255, 255, .2); }
+    .success-hero h2 { font-size: 18px; }
+    .success-hero p { margin-top: 6px; opacity: .92; font-size: 12px; line-height: 1.5; }
+    .result-scroll { flex: 1; overflow-y: auto; padding: 16px; }
+    .success-card { margin-top: -36px; padding: 18px; border-radius: 14px; text-align: center; }
+    .success-card .result-label { color: var(--ink-3); font-size: 12px; }
+    .result-code { margin: 7px 0 10px; color: var(--brand); font-size: 34px; font-weight: 800; letter-spacing: 7px; }
+    .result-graphic { width: 116px; height: 116px; margin: 12px auto 6px; border: 6px solid #fff; border-radius: 10px; background: repeating-conic-gradient(#1D2129 0 25%, #fff 0 50%) 0 0 / 14px 14px; box-shadow: 0 0 0 1px var(--line); }
+    .result-tip { margin-top: 12px; padding: 8px 12px; border-radius: 8px; color: var(--warn); background: var(--warn-soft); font-size: 12px; line-height: 1.5; }
+    .result-detail { margin-top: 12px; padding: 14px; border-radius: 12px; background: #fff; box-shadow: 0 1px 4px rgba(29, 33, 41, .06); }
+    .result-detail h3 { color: var(--ink); font-size: 15px; }
+    .divider { height: 1px; margin: 12px 0; background: var(--line-2); }
+    .kv { display: flex; margin: 8px 0; color: var(--ink); font-size: 13px; }
+    .kv .key { width: 72px; flex: 0 0 auto; color: var(--ink-3); }
+    .kv .val { min-width: 0; flex: 1; }
+    .result-map { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; height: 42px; margin-top: 12px; border: 1px solid var(--line); border-radius: 8px; color: var(--ink); background: #fff; cursor: pointer; font-size: 14px; }
+    .success-foot { flex: 0 0 auto; padding: 12px 16px calc(16px + env(safe-area-inset-bottom)); border-top: 1px solid var(--line-2); background: #fff; }
+    .success-foot .btn-cta { width: 100%; }
+
+    .toast { position: absolute; bottom: 112px; left: 50%; z-index: 60; max-width: calc(100% - 40px); padding: 10px 16px; border-radius: 8px; color: #fff; background: rgba(29, 33, 41, .9); font-size: 13px; opacity: 0; pointer-events: none; transform: translateX(-50%); transition: .2s; white-space: nowrap; }
+    .toast.show { opacity: 1; }
+    .home-indicator { position: absolute; right: 50%; bottom: 5px; z-index: 50; width: 112px; height: 4px; border-radius: 4px; background: rgba(29, 33, 41, .8); transform: translateX(50%); pointer-events: none; }
+
+    /* 右侧需求说明卡片 */
+    .spec-scroll { flex: 1 1 auto; min-height: 0; height: auto; overflow-y: auto; padding: 18px 22px 22px; }
+    .requirements-title { position: relative; top: auto; z-index: 3; display: flex; flex: 0 0 auto; align-items: flex-start; justify-content: space-between; gap: 14px; margin: 0; padding: 22px 22px 16px; border-bottom: 1px solid rgba(148, 163, 184, .24); background: rgba(233, 237, 243, .92); backdrop-filter: blur(8px); }
+    .eyebrow { color: var(--brand); font-size: 10px; font-weight: 700; letter-spacing: .12em; }
+    .requirements-title h1 { margin-top: 5px; color: var(--ink); font-size: 20px; line-height: 1.3; }
+    .requirements-title p { margin-top: 5px; color: var(--ink-3); font-size: 12px; }
+    .sync-badge { flex: 0 0 auto; padding: 4px 8px; border-radius: 999px; color: var(--ok); background: var(--ok-soft); font-size: 11px; font-weight: 600; }
+    .spec-section { margin: 0 0 14px; padding: 13px 14px; border: 1px solid var(--line-2); border-radius: 12px; background: #fff; }
+    .spec-section h3 { margin-bottom: 8px; color: var(--ink); font-size: 13px; }
+    .spec-section p, .spec-section li { color: var(--ink-2); font-size: 12px; line-height: 1.65; }
+    .spec-section ul, .spec-section ol { padding-left: 18px; }
+    .spec-section li + li { margin-top: 3px; }
+    .spec-highlight { border-color: #CFE0FF; background: var(--brand-soft); }
+    .spec-highlight p, .spec-highlight li { color: #2858A8; }
+
+    /* 需求评审工具，不参与手机业务页面。 */
+    .editbar { position: fixed; top: 14px; right: 14px; z-index: 200; text-align: right; }
+    .edit-toggle { display: inline-flex; align-items: center; gap: 5px; padding: 6px 11px; border: 1px solid var(--line); border-radius: 999px; color: var(--brand); background: rgba(255, 255, 255, .94); box-shadow: 0 6px 16px -8px rgba(20, 30, 60, .3); cursor: pointer; font-size: 12px; font-weight: 600; }
+    .editbar.on .edit-toggle { border-color: var(--brand); color: #fff; background: var(--brand); }
+    .edit-tools { display: none; position: absolute; top: calc(100% + 8px); right: 0; width: min(320px, 86vw); padding: 12px; border: 1px solid var(--line); border-radius: 14px; background: #fff; box-shadow: 0 22px 48px -18px rgba(20, 30, 60, .42); text-align: left; }
+    .editbar.on .edit-tools { display: block; }
+    .tools-label { color: var(--ink-3); font-size: 11.5px; font-weight: 600; }
+    .state-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 7px 0 10px; }
+    .tool-actions { display: flex; gap: 8px; }
+    .tool-btn { padding: 7px 10px; border: 1px solid var(--line); border-radius: 8px; color: var(--ink-2); background: #fff; cursor: pointer; font-size: 12px; white-space: nowrap; }
+    .tool-btn:hover { border-color: var(--brand); color: var(--brand); }
+    .tool-btn.active { border-color: var(--brand); color: var(--brand); background: var(--brand-soft); font-weight: 600; }
+    .tool-btn.primary { border-color: var(--brand); color: #fff; background: var(--brand); font-weight: 600; }
+    .tool-btn.danger:hover { border-color: var(--danger); color: var(--danger); }
+    .tool-tip { margin-top: 10px; padding-top: 9px; border-top: 1px solid var(--line); color: var(--ink-3); font-size: 11.5px; line-height: 1.5; }
+    body.editing [data-k] { outline: 1px dashed rgba(22, 93, 255, .55); outline-offset: 2px; border-radius: 3px; cursor: text; }
+    body.editing [data-k]:hover { background: rgba(22, 93, 255, .07); }
+    body.editing [data-k]:focus { outline: 2px solid var(--brand); background: #fff; }
+
+    @media (max-width: 1280px) {
+      body { padding-left: 16px; padding-right: 16px; }
+      .workspace { width: 1232px; }
+    }
+  </style>
+  <script id="seedCopy">window.__SEED_COPY__ = {};</script>
+</head>
+<body>
+  <main class="workspace" id="workspace">
+    <section class="prototype-pane" id="prototype-pane" aria-label="APP/H5 交互原型区域">
+      <div class="prototype-stage">
+        <div class="phone" aria-label="移动端设备外壳">
+          <div class="screen">
+            <div class="statusbar" aria-label="模拟状态栏">
+              <span>9:41</span>
+              <span class="status-icons">
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M2 22h3v-8H2v8zm5 0h3V10H7v12zm5 0h3V4h-3v18zm5 0h3v-6h-3v6z" /></svg>
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 4C7 4 3 8 2 10l10 10L22 10c-1-2-5-6-10-6z" opacity=".9" /></svg>
+                <svg viewBox="0 0 26 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="2" y="7" width="18" height="10" rx="2.5" /><rect x="4" y="9" width="12" height="6" rx="1" fill="currentColor" /><path d="M22 10v4" stroke-linecap="round" /></svg>
+              </span>
+            </div>
+
+            <div class="app">
+              <header class="m-header">
+                <button class="m-back" id="back-button" type="button" aria-label="返回">‹</button>
+                <span class="m-title" id="mobile-title" data-k="mobile.title">预约信息</span>
+                <span class="m-brand" data-k="mobile.brand">服务中心</span>
+              </header>
+
+              <section class="m-fixed" id="fixed-summary">
+                <div class="object-card">
+                  <div class="object-top">
+                    <div class="object-icon" aria-hidden="true">
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 7.5L12 3l8 4.5v9L12 21l-8-4.5v-9Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" /><path d="m4 7.5 8 4.5 8-4.5M12 12v9" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" /></svg>
+                    </div>
+                    <div class="object-info">
+                      <div class="title" data-k="object.title">业务对象待办理</div>
+                      <div class="sub"><span data-k="object.idLabel">对象编号</span> OBJ-20260718</div>
+                    </div>
+                    <span class="object-tag" data-k="object.tag">待预约</span>
+                  </div>
+                  <div class="object-meta">
+                    <div><div class="label" data-k="object.typeLabel">服务类型</div><div class="value" data-k="object.typeValue">标准服务</div></div>
+                    <div><div class="label" data-k="object.timeLabel">有效时间</div><div class="value" data-k="object.timeValue">7 月 20 日前</div></div>
+                  </div>
+                </div>
+              </section>
+
+              <main class="m-list" id="mobile-content">
+                <div class="section-title" data-k="method.title">请选择服务方式</div>
+                <div class="method-grid" role="group" aria-label="服务方式">
+                  <button class="method-card active" id="method-visit" type="button">
+                    <span class="main"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 10h16v9a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-9Z" stroke="currentColor" stroke-width="1.7" /><path d="m4 10 2-5h12l2 5M9 14h6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" /></svg><span data-k="method.visit">到店办理</span></span>
+                    <span class="desc" data-k="method.visitDesc">选择附近服务网点</span>
+                  </button>
+                  <button class="method-card" id="method-home" type="button">
+                    <span class="main"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 21V9l8-6 8 6v12" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" /><path d="M9 21v-6h6v6" stroke="currentColor" stroke-width="1.7" /></svg><span data-k="method.home">上门服务</span></span>
+                    <span class="desc" data-k="method.homeDesc">工作人员按预约上门</span>
+                  </button>
+                </div>
+
+                <section id="visit-content">
+                  <div class="notice">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" /><path d="M12 8v5" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><circle cx="12" cy="16.5" r="1" fill="currentColor" /></svg>
+                    <div data-k="notice.text">请选择一个服务网点，并在预约有效期内完成办理。</div>
+                  </div>
+                  <div class="location-row">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11Z" stroke="currentColor" stroke-width="2" /><circle cx="12" cy="10" r="2.4" stroke="currentColor" stroke-width="2" /></svg>
+                    <span data-k="location.current">当前位置：模拟定位中</span>
+                    <button class="relocate" id="relocate-button" type="button"><span data-k="location.refresh">重新定位</span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 4v6h6M20 20v-6h-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /><path d="M20 10a8 8 0 0 0-14-4M4 14a8 8 0 0 0 14 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg></button>
+                  </div>
+                  <label class="search-box" for="point-search">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2" /><path d="m21 21-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
+                    <input id="point-search" type="search" autocomplete="off" placeholder="搜索服务网点 / 地区" data-k-placeholder="search.placeholder">
+                  </label>
+                  <div class="list-heading"><span data-k="list.title">附近的服务网点</span> · <strong id="point-count">4</strong> 个</div>
+                  <div id="point-list" aria-live="polite"></div>
+
+                  <div class="state-panel" id="loading-state" hidden>
+                    <div class="state-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 3a9 9 0 1 0 9 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg></div>
+                    <h3 data-k="state.loading.title">正在加载</h3>
+                    <p data-k="state.loading.desc">正在获取可用服务网点，请稍候。</p>
+                  </div>
+                  <div class="state-panel" id="empty-state" hidden>
+                    <div class="state-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M5 8h14v11H5zM8 8V5h8v3M8 12h8M8 15h5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" /></svg></div>
+                    <h3 data-k="state.empty.title">暂无服务网点</h3>
+                    <p data-k="state.empty.desc">当前范围内没有符合条件的网点，请清空搜索或稍后重试。</p>
+                    <button id="empty-reset" type="button" data-k="state.empty.action">清空搜索</button>
+                  </div>
+                  <div class="state-panel" id="error-state" hidden>
+                    <div class="state-icon danger"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 4 3 20h18L12 4Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" /><path d="M12 10v4M12 17h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg></div>
+                    <h3 data-k="state.error.title">服务暂时不可用</h3>
+                    <p data-k="state.error.desc">网点信息加载失败，请重试或改为上门服务。</p>
+                    <button id="error-retry" type="button" data-k="state.error.action">重新加载</button>
+                  </div>
+                </section>
+
+                <section id="home-content" hidden>
+                  <div class="home-card">
+                    <div class="home-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M4 21V9l8-6 8 6v12" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" /><path d="M9 21v-6h6v6" stroke="currentColor" stroke-width="1.6" /></svg></div>
+                    <h3 data-k="home.title">工作人员将按预约上门</h3>
+                    <p data-k="home.desc">请确认联系方式保持畅通。提交预约后，工作人员会在有效时间内联系你确认上门安排。</p>
+                  </div>
+                </section>
+              </main>
+
+              <footer class="m-footer">
+                <div class="picked" id="picked-summary" data-k="footer.empty">尚未选择服务网点</div>
+                <button class="btn-cta" id="confirm-button" type="button" disabled data-k="footer.confirm">确认预约</button>
+              </footer>
+
+              <section class="m-success" id="success-page" aria-label="预约成功页">
+                <div class="success-hero">
+                  <div class="ok"><svg width="30" height="30" viewBox="0 0 24 24" fill="none"><path d="m5 13 4 4L19 7" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" /></svg></div>
+                  <h2 data-k="success.title">预约已提交</h2>
+                  <p data-k="success.desc">请按预约信息前往服务网点完成后续办理。</p>
+                </div>
+                <div class="result-scroll">
+                  <div class="success-card">
+                    <div class="result-label" data-k="success.codeLabel">预约编号</div>
+                    <div class="result-code" id="result-code">A7K2</div>
+                    <div class="result-graphic" aria-label="模拟二维码"></div>
+                    <div class="result-tip" data-k="success.tip">请在有效时间内出示预约编号，工作人员核验后为你办理。</div>
+                  </div>
+                  <div class="result-detail">
+                    <h3 id="result-point">服务网点一</h3>
+                    <div class="divider"></div>
+                    <div class="kv"><span class="key" data-k="success.addressLabel">地址</span><span class="val" id="result-address">示例街道 100 号</span></div>
+                    <div class="kv"><span class="key" data-k="success.hoursLabel">营业时间</span><span class="val" id="result-hours">周一至周日 09:00 - 18:00</span></div>
+                    <div class="kv"><span class="key" data-k="success.validLabel">有效时间</span><span class="val" data-k="success.validValue">7 月 20 日前</span></div>
+                    <button class="result-map" id="result-map" type="button"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 3 3 5v16l6-2 6 2 6-2V3l-6 2-6-2Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" /><path d="M9 3v16M15 5v16" stroke="currentColor" stroke-width="1.7" /></svg><span data-k="success.map">查看位置（模拟）</span></button>
+                  </div>
+                </div>
+                <div class="success-foot"><button class="btn-cta" id="success-done" type="button" data-k="success.done">完成</button></div>
+              </section>
+
+              <div class="toast" id="toast" role="status" aria-live="polite"></div>
+            </div>
+            <div class="home-indicator" aria-hidden="true"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <aside class="requirements-pane" id="requirements-pane" aria-label="APP/H5 页面需求说明">
+      <header class="requirements-title">
+        <div>
+          <div class="eyebrow">MOBILE PAGE SPECIFICATION</div>
+          <h1 id="requirements-heading">预约信息页</h1>
+          <p id="requirements-subtitle">初始状态 · 说明与手机页面同步</p>
+        </div>
+        <span class="sync-badge">说明已同步</span>
+      </header>
+      <div class="spec-scroll" id="spec-scroll">
+        <div id="requirement-content"></div>
+      </div>
+    </aside>
+  </main>
+
+  <div class="editbar" id="editbar">
+    <button class="edit-toggle" id="edit-toggle" type="button"><span>✎</span><span id="edit-toggle-text">编辑文案</span></button>
+    <div class="edit-tools">
+      <div class="tools-label">预览状态</div>
+      <div class="state-chips">
+        <button class="tool-btn active" type="button" data-preview="initial">初始</button>
+        <button class="tool-btn" type="button" data-preview="selected">已选择</button>
+        <button class="tool-btn" type="button" data-preview="loading">加载中</button>
+        <button class="tool-btn" type="button" data-preview="empty">空态</button>
+        <button class="tool-btn" type="button" data-preview="error">异常</button>
+        <button class="tool-btn" type="button" data-preview="success">成功页</button>
+        <button class="tool-btn" type="button" data-preview="home">上门服务</button>
+      </div>
+      <div class="tool-actions">
+        <button class="tool-btn primary" id="export-button" type="button">⬇ 导出 HTML</button>
+        <button class="tool-btn danger" id="reset-button" type="button">恢复默认</button>
+      </div>
+      <div class="tool-tip">打开编辑后，点击带虚线的文字直接修改；文案会自动保存，导出后仍可独立打开。</div>
+    </div>
+  </div>
+
+  <script>
+    /* 通用模拟数据：仅用于展示移动端列表卡片，不绑定具体业务。 */
+    const SERVICE_POINTS = [
+      { name: '服务网点一', address: '示例街道 100 号', hours: '周一至周日 09:00 - 18:00', distance: '0.8 km' },
+      { name: '服务网点二', address: '中心广场 B 区', hours: '周一至周五 10:00 - 19:00', distance: '1.5 km' },
+      { name: '服务网点三', address: '社区服务中心 2 层', hours: '周一至周日 09:30 - 17:30', distance: '2.4 km' },
+      { name: '服务网点四', address: '城市服务街区 8 号', hours: '周一至周六 09:00 - 20:00', distance: '3.2 km' }
+    ];
+
+    const $ = (selector) => document.querySelector(selector);
+    const state = { method: 'visit', selected: -1, preview: 'initial', submitting: false };
+    let toastTimer;
+    let submitTimer;
+
+    // 根据左侧展示区的可用高度等比缩放手机外壳，避免手机超出 Web 评审页面。
+    function fitPhoneToViewport() {
+      const stage = $('.prototype-stage');
+      if (!stage) return;
+      const heightScale = (stage.clientHeight - 8) / 832;
+      const widthScale = (stage.clientWidth - 8) / 398;
+      const scale = Math.max(.1, Math.min(1, heightScale, widthScale));
+      stage.style.setProperty('--phone-scale', scale.toFixed(4));
+    }
+
+    window.addEventListener('resize', fitPhoneToViewport);
+    if (window.ResizeObserver) {
+      const stage = $('.prototype-stage');
+      if (stage) new ResizeObserver(fitPhoneToViewport).observe(stage);
+    }
+
+    const PAGE_SPECS = {
+      initial: {
+        title: '预约信息页', subtitle: '初始状态 · 未选择服务网点',
+        content: `<div class="spec-section spec-highlight"><h3>页面目标</h3><p>让用户查看业务对象摘要、选择服务方式，并从附近服务网点中选择一个办理地点。</p></div>
+          <div class="spec-section"><h3>目标用户 / 页面入口</h3><ul><li>目标用户：普通业务用户。</li><li>入口：从消息链接进入 H5。</li><li>前置条件：业务对象标识有效，默认进入到店办理。</li></ul></div>
+          <div class="spec-section"><h3>页面结构与展示字段</h3><ul><li>固定状态栏、顶部标题“预约信息”、业务对象摘要卡片。</li><li>服务方式：到店办理、上门服务。</li><li>当前位置、重新定位、服务网点搜索框、网点名称、地址、营业时间和距离。</li><li>底部固定摘要和“确认预约”按钮。</li></ul></div>
+          <div class="spec-section"><h3>交互规则</h3><ul><li>默认选择到店办理，服务网点未选择时确认按钮禁用。</li><li>支持搜索网点名称或地区；清空后恢复完整列表。</li><li>点击网点卡片选中一个网点，并更新底部摘要。</li></ul></div>
+          <div class="spec-section"><h3>按钮规则</h3><ul><li>“重新定位”：始终展示；点击模拟重新获取位置并显示 Toast。</li><li>“确认预约”：默认禁用；选择网点后启用；点击进入提交处理中。</li><li>不允许在未选择网点时提交；本原型不调用真实接口。</li></ul></div>
+          <div class="spec-section"><h3>状态、异常与验收标准</h3><ul><li>默认状态展示列表和禁用按钮；无结果进入空态。</li><li>定位失败、网点加载失败和提交失败需有可理解的提示与重试路径。</li><li>页面内滚动不影响状态栏、顶栏和底部操作栏；右侧说明与当前状态一致。</li></ul></div>`
+      },
+      selected: {
+        title: '预约信息页', subtitle: '已选择状态 · 服务网点一',
+        content: `<div class="spec-section spec-highlight"><h3>页面目标</h3><p>在用户选定服务网点后，清晰呈现选中结果并允许确认预约。</p></div>
+          <div class="spec-section"><h3>默认状态与展示字段</h3><ul><li>服务方式为到店办理，服务网点一呈选中态。</li><li>卡片展示网点名称、地址、营业时间和距离。</li><li>底部摘要展示当前网点，主按钮变为可用。</li></ul></div>
+          <div class="spec-section"><h3>交互与校验</h3><ul><li>列表单选，重新选择其他网点时同步更新摘要。</li><li>确认预约只允许在选中网点且未提交时点击。</li><li>提交过程中按钮进入加载态并禁止重复点击。</li></ul></div>
+          <div class="spec-section"><h3>成功 / 失败反馈</h3><ul><li>成功：进入预约成功页，展示预约编号和网点详情。</li><li>失败：停留当前页面，保留方式、搜索内容和网点选择，允许重试。</li></ul></div>
+          <div class="spec-section"><h3>验收标准</h3><ul><li>选中边框和勾选标识明显。</li><li>底部主按钮状态与选中结果一致。</li><li>字段、状态、按钮和跳转与左侧手机页面完全一致。</li></ul></div>`
+      },
+      loading: {
+        title: '预约信息页', subtitle: '加载状态 · 正在提交预约',
+        content: `<div class="spec-section spec-highlight"><h3>页面目标</h3><p>反馈提交正在处理，避免用户误以为操作没有生效。</p></div>
+          <div class="spec-section"><h3>加载状态</h3><ul><li>主按钮显示加载指示和“提交中”文案。</li><li>主按钮不可重复点击，已选择的数据保持可见。</li><li>列表和方式选择保持当前页面上下文。</li></ul></div>
+          <div class="spec-section"><h3>按钮规则</h3><ul><li>显示条件：用户已选择服务网点或选择上门服务。</li><li>点击后：前端进入 loading，原型模拟接口处理。</li><li>成功后：进入预约成功页；失败后：回到当前页并显示原因。</li></ul></div>
+          <div class="spec-section"><h3>验收标准</h3><ul><li>加载期间不会产生重复提交。</li><li>页面不出现跳动或底部栏遮挡。</li><li>右侧说明明确标记当前为提交处理中。</li></ul></div>`
+      },
+      empty: {
+        title: '预约信息页', subtitle: '空状态 · 没有可用服务网点',
+        content: `<div class="spec-section spec-highlight"><h3>页面目标</h3><p>当当前范围没有可用网点或搜索无结果时，给出原因和下一步操作。</p></div>
+          <div class="spec-section"><h3>空状态展示</h3><ul><li>列表区域展示空状态图标、标题和简短说明。</li><li>清空搜索按钮恢复完整列表。</li><li>底部确认预约按钮保持禁用。</li></ul></div>
+          <div class="spec-section"><h3>异常与替代方案</h3><ul><li>用户可清空关键词后重试。</li><li>如果服务网点接口无数据，应保留服务方式并允许切换上门服务。</li><li>不清空用户已有输入，不把空态误认为提交成功。</li></ul></div>
+          <div class="spec-section"><h3>验收标准</h3><ul><li>空态内容不遮挡底部操作栏。</li><li>重置操作后列表和右侧说明恢复到初始状态。</li></ul></div>`
+      },
+      error: {
+        title: '预约信息页', subtitle: '异常状态 · 网点信息加载失败',
+        content: `<div class="spec-section spec-highlight"><h3>页面目标</h3><p>网点信息不可用时，让用户知道失败原因，并提供重试或替代路径。</p></div>
+          <div class="spec-section"><h3>异常处理</h3><ul><li>展示“服务暂时不可用”和可理解的失败说明。</li><li>“重新加载”按钮可恢复到可操作列表。</li><li>允许用户切换上门服务作为替代方式。</li></ul></div>
+          <div class="spec-section"><h3>按钮规则</h3><ul><li>重新加载：点击后隐藏异常态，模拟恢复列表并显示 Toast。</li><li>确认预约：网点数据不可用且未切换上门服务时不可提交。</li></ul></div>
+          <div class="spec-section"><h3>验收标准</h3><ul><li>失败时不丢失已选方式和输入。</li><li>错误信息不只依赖 Toast，手机页面内有明确异常态。</li></ul></div>`
+      },
+      success: {
+        title: '预约成功页', subtitle: '成功状态 · 展示预约结果',
+        content: `<div class="spec-section spec-highlight"><h3>页面目标</h3><p>确认预约已提交，并给出预约编号、办理地点和下一步行动。</p></div>
+          <div class="spec-section"><h3>页面入口 / 页面结构</h3><ul><li>入口：预约信息页确认提交成功后进入。</li><li>结构：成功头部、预约编号/模拟二维码、服务网点详情、位置按钮和完成按钮。</li></ul></div>
+          <div class="spec-section"><h3>展示字段</h3><ul><li>预约编号、服务网点、地址、营业时间和有效时间。</li><li>结果页内的地图按钮仅模拟外部位置查看，不调用真实地图 SDK。</li></ul></div>
+          <div class="spec-section"><h3>按钮规则与跳转</h3><ul><li>“查看位置”：始终可点击，显示模拟外部位置提示。</li><li>“完成”：返回预约信息页初始状态。</li><li>成功页不再重复提交，主操作为完成或返回。</li></ul></div>
+          <div class="spec-section"><h3>验收标准</h3><ul><li>成功结果限制在手机屏幕内，内部可滚动。</li><li>用户能看到下一步操作，右侧说明与成功页字段一致。</li></ul></div>`
+      },
+      home: {
+        title: '预约信息页', subtitle: '上门服务 · 方式已切换',
+        content: `<div class="spec-section spec-highlight"><h3>页面目标</h3><p>让用户切换到上门服务，并确认无需选择服务网点即可提交预约。</p></div>
+          <div class="spec-section"><h3>交互规则</h3><ul><li>点击“上门服务”后，隐藏定位、搜索和网点列表。</li><li>展示上门服务说明，底部摘要同步更新。</li><li>确认按钮启用；点击后进入提交处理中。</li></ul></div>
+          <div class="spec-section"><h3>权限或系统能力</h3><ul><li>本原型只模拟上门服务，不调用真实调度、电话或通知能力。</li><li>真实业务应补充联系方式、预约时间和服务范围校验。</li></ul></div>
+          <div class="spec-section"><h3>验收标准</h3><ul><li>方式选中态明显，底部按钮状态正确。</li><li>返回到店办理后，网点选择逻辑恢复且未产生无依据的数据变化。</li></ul></div>`
+      }
+    };
+
+    function showToast(message) {
+      const toast = $('#toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove('show'), 1700);
+    }
+
+    function renderRequirements() {
+      const spec = PAGE_SPECS[state.preview];
+      $('#requirements-heading').textContent = spec.title;
+      $('#requirements-subtitle').textContent = spec.subtitle;
+      $('#requirement-content').innerHTML = spec.content;
+      $('#spec-scroll').scrollTop = 0;
+      document.querySelectorAll('[data-preview]').forEach((button) => button.classList.toggle('active', button.dataset.preview === state.preview));
+      applyCopy($('#requirements-pane'));
+    }
+
+    function setVisible(element, visible) { element.hidden = !visible; }
+
+    function renderPoints() {
+      const keyword = $('#point-search').value.trim().toLowerCase();
+      const filtered = SERVICE_POINTS.filter((point) => `${point.name} ${point.address}`.toLowerCase().includes(keyword));
+      $('#point-count').textContent = filtered.length;
+      $('#point-list').innerHTML = filtered.map((point) => {
+        const index = SERVICE_POINTS.indexOf(point);
+        return `<article class="point-card ${state.selected === index ? 'active' : ''}" data-point-index="${index}">
+          <div class="point-name"><span>${point.name}</span><span class="point-check"></span></div>
+          <div class="point-line"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11Z" stroke="currentColor" stroke-width="2" /><circle cx="12" cy="10" r="2.4" stroke="currentColor" stroke-width="2" /></svg>${point.address}</div>
+          <div class="point-line"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" /><path d="M12 7v5l3 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>营业时间 ${point.hours}</div>
+          <div class="point-foot"><span class="point-distance">距你 <strong>${point.distance}</strong></span><button class="point-action" type="button" data-map-index="${index}">查看位置</button></div>
+        </article>`;
+      }).join('');
+      if (!filtered.length) {
+        state.preview = 'empty';
+      } else if (state.preview === 'empty') {
+        state.preview = state.selected >= 0 ? 'selected' : 'initial';
+      }
+      document.querySelectorAll('[data-point-index]').forEach((card) => card.addEventListener('click', () => selectPoint(Number(card.dataset.pointIndex))));
+      document.querySelectorAll('[data-map-index]').forEach((button) => button.addEventListener('click', (event) => {
+        event.stopPropagation();
+        showToast('此处模拟打开外部位置服务');
+      }));
+      setVisible($('#empty-state'), !filtered.length && state.preview !== 'error' && state.preview !== 'loading');
+      if (!filtered.length) setVisible($('#point-list'), false); else setVisible($('#point-list'), state.preview !== 'loading' && state.preview !== 'error');
+      $('#point-search').setAttribute('aria-label', '搜索服务网点或地区');
+    }
+
+    function updateFooter() {
+      const button = $('#confirm-button');
+      const summary = $('#picked-summary');
+      if (state.method === 'home') {
+        summary.innerHTML = '<strong>上门服务</strong>工作人员按预约联系';
+        button.disabled = false;
+        button.textContent = state.submitting ? '提交中' : '确认预约';
+        return;
+      }
+      if (state.selected < 0) {
+        summary.textContent = '尚未选择服务网点';
+        button.disabled = true;
+      } else {
+        const point = SERVICE_POINTS[state.selected];
+        summary.innerHTML = `<strong>${point.name}</strong>${point.distance} · ${point.hours}`;
+        button.disabled = state.submitting;
+      }
+      button.textContent = state.submitting ? '提交中' : '确认预约';
+      button.classList.toggle('loading', state.submitting);
+    }
+
+    function selectMethod(method) {
+      if (state.submitting || document.body.classList.contains('editing')) return;
+      state.method = method;
+      state.preview = method === 'home' ? 'home' : (state.selected >= 0 ? 'selected' : 'initial');
+      $('#method-visit').classList.toggle('active', method === 'visit');
+      $('#method-home').classList.toggle('active', method === 'home');
+      setVisible($('#visit-content'), method === 'visit');
+      setVisible($('#home-content'), method === 'home');
+      updateFooter();
+      renderRequirements();
+    }
+
+    function selectPoint(index) {
+      if (state.submitting || document.body.classList.contains('editing')) return;
+      state.method = 'visit';
+      state.selected = index;
+      state.preview = 'selected';
+      $('#method-visit').classList.add('active');
+      $('#method-home').classList.remove('active');
+      setVisible($('#visit-content'), true);
+      setVisible($('#home-content'), false);
+      renderPoints();
+      updateFooter();
+      renderRequirements();
+    }
+
+    function renderStatePanels() {
+      const isLoading = state.preview === 'loading';
+      const isError = state.preview === 'error';
+      const isEmpty = state.preview === 'empty';
+      setVisible($('#loading-state'), isLoading);
+      setVisible($('#error-state'), isError);
+      if (isLoading || isError) setVisible($('#point-list'), false);
+      else if (!isEmpty) setVisible($('#point-list'), true);
+      setVisible($('#empty-state'), isEmpty);
+    }
+
+    function renderPreview() {
+      $('#success-page').classList.toggle('show', state.preview === 'success');
+      if (state.preview === 'success') {
+        const point = SERVICE_POINTS[state.selected >= 0 ? state.selected : 0];
+        $('#result-point').textContent = point.name;
+        $('#result-address').textContent = point.address;
+        $('#result-hours').textContent = point.hours;
+        setVisible($('#visit-content'), true);
+        setVisible($('#home-content'), false);
+      } else {
+        if (state.preview === 'home') selectMethod('home');
+        else {
+          state.method = 'visit';
+          $('#method-visit').classList.add('active');
+          $('#method-home').classList.remove('active');
+          setVisible($('#visit-content'), true);
+          setVisible($('#home-content'), false);
+        }
+        renderPoints();
+        renderStatePanels();
+        updateFooter();
+      }
+      renderRequirements();
+    }
+
+    function gotoState(nextState) {
+      clearTimeout(submitTimer);
+      state.submitting = false;
+      if (nextState === 'initial') { state.selected = -1; $('#point-search').value = ''; }
+      if (nextState === 'selected') { state.selected = 0; $('#point-search').value = ''; }
+      state.preview = nextState;
+      renderPreview();
+    }
+
+    function confirmBooking() {
+      if (state.submitting || document.body.classList.contains('editing')) return;
+      if (state.method === 'visit' && state.selected < 0) {
+        showToast('请选择一个服务网点');
+        return;
+      }
+      state.submitting = true;
+      state.preview = 'loading';
+      updateFooter();
+      renderStatePanels();
+      renderRequirements();
+      submitTimer = setTimeout(() => {
+        state.submitting = false;
+        state.preview = 'success';
+        renderPreview();
+        showToast('预约已提交');
+      }, 750);
+    }
+
+    function backToPrevious() {
+      if (state.preview === 'success') gotoState('initial');
+      else showToast('此处模拟返回上一页');
+    }
+
+    function applyCopy(root) {
+      (root || document).querySelectorAll('[data-k]').forEach((element) => {
+        const key = element.dataset.k;
+        if (key in COPY && element !== document.activeElement && element.innerHTML !== COPY[key]) element.innerHTML = COPY[key];
+        if (editing) element.setAttribute('contenteditable', 'true'); else element.removeAttribute('contenteditable');
+      });
+      document.querySelectorAll('[data-k-placeholder]').forEach((element) => {
+        const key = element.dataset.kPlaceholder;
+        if (key in COPY) element.placeholder = COPY[key];
+      });
+    }
+
+    const COPY_KEY = 'app_prototype_copy_v1';
+    let COPY = {};
+    try { COPY = JSON.parse(localStorage.getItem(COPY_KEY) || '{}'); } catch (error) { COPY = {}; }
+    if (window.__SEED_COPY__) COPY = Object.assign({}, window.__SEED_COPY__, COPY);
+    let editing = false;
+
+    function saveCopy() { try { localStorage.setItem(COPY_KEY, JSON.stringify(COPY)); } catch (error) {} }
+
+    document.addEventListener('input', (event) => {
+      const element = event.target.closest && event.target.closest('[data-k]');
+      if (!element || !editing) return;
+      COPY[element.dataset.k] = element.innerHTML;
+      saveCopy();
+      document.querySelectorAll(`[data-k="${element.dataset.k}"]`).forEach((other) => { if (other !== element) other.innerHTML = COPY[element.dataset.k]; });
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (editing && event.key === 'Enter') {
+        const element = event.target.closest && event.target.closest('[data-k]');
+        if (element) { event.preventDefault(); element.blur(); }
+      }
+    });
+
+    function toggleEditing() {
+      editing = !editing;
+      document.body.classList.toggle('editing', editing);
+      $('#editbar').classList.toggle('on', editing);
+      $('#edit-toggle-text').textContent = editing ? '完成编辑' : '编辑文案';
+      applyCopy(document);
+    }
+
+    function exportHTML() {
+      const wasEditing = editing;
+      if (editing) toggleEditing();
+      let seed = $('#seedCopy');
+      if (!seed) { seed = document.createElement('script'); seed.id = 'seedCopy'; document.head.appendChild(seed); }
+      seed.textContent = `window.__SEED_COPY__ = ${JSON.stringify(COPY)};`;
+      const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+      const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'mobile-prototype.html';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(link.href), 2000);
+      if (wasEditing) toggleEditing();
+      showToast('已导出 HTML');
+    }
+
+    function resetCopy() {
+      COPY = {};
+      saveCopy();
+      const seed = $('#seedCopy');
+      if (seed) seed.textContent = 'window.__SEED_COPY__ = {};';
+      location.reload();
+    }
+
+    $('#method-visit').addEventListener('click', () => selectMethod('visit'));
+    $('#method-home').addEventListener('click', () => selectMethod('home'));
+    $('#confirm-button').addEventListener('click', confirmBooking);
+    $('#back-button').addEventListener('click', backToPrevious);
+    $('#success-done').addEventListener('click', () => gotoState('initial'));
+    $('#result-map').addEventListener('click', () => showToast('此处模拟打开外部位置服务'));
+    $('#relocate-button').addEventListener('click', () => showToast('已重新获取模拟位置'));
+    $('#point-search').addEventListener('input', () => {
+      if (state.method !== 'visit') selectMethod('visit');
+      renderPoints();
+      renderStatePanels();
+      renderRequirements();
+    });
+    $('#empty-reset').addEventListener('click', () => { $('#point-search').value = ''; state.selected = -1; state.preview = 'initial'; renderPreview(); });
+    $('#error-retry').addEventListener('click', () => { state.preview = 'initial'; renderPreview(); showToast('已重新加载服务网点'); });
+    $('#edit-toggle').addEventListener('click', toggleEditing);
+    $('#export-button').addEventListener('click', exportHTML);
+    $('#reset-button').addEventListener('click', resetCopy);
+    document.querySelectorAll('[data-preview]').forEach((button) => button.addEventListener('click', () => gotoState(button.dataset.preview)));
+
+    /* 初始渲染：默认到店办理、无选中网点。 */
+    updateFooter();
+    renderPoints();
+    renderStatePanels();
+    renderRequirements();
+    applyCopy(document);
+    requestAnimationFrame(fitPhoneToViewport);
+  </script>
+</body>
+</html>
