@@ -78,7 +78,7 @@ python3 scripts/validate_html.py templates/app-prototype-template.html
 python3 scripts/validate_html.py <你生成的原型>.html
 ```
 
-需要 Python 3.9+，仅用标准库，会自动判断 Web 或 APP/H5 类型并执行对应检查。
+需要 Python 3.9+，仅用标准库，会自动判断 Web 或 APP/H5 类型并执行对应检查。Windows 上把 `python3` 换成 `python` 即可。没有 Python 也不影响使用，脚本只是交付前的可选自检。
 
 ## 目录结构
 
